@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block title %}Gestión Logística - Huden Platform{% endblock %}
+
+{% block content %}
+<div id="logistica" class="content-section fade-in p-8">
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h2 class="text-4xl font-bold text-slate-800 mb-2">Gestión Logística</h2>
+            <p class="text-slate-600 text-lg">Control de entregas y distribución de órdenes</p>
+        </div>
+        <div class="flex space-x-4">
+            <a href="{% url 'core:export_logistics_excel' %}" class="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover-scale">
+                <i class="fas fa-file-excel mr-3"></i>Exportar Excel
+            </a>
+            <button class="btn-corporate-secondary text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover-scale">
+                <i class="fas fa-file-pdf mr-3"></i>Exportar PDF
+            </button>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-xl p-8">
+        <!-- Filter Form -->
+
+        <!-- Table -->
+        <div class="table-container rounded-xl border border-slate-200 overflow-hidden">
+            <table class="w-full" id="logistica-table">
+                <thead class="bg-gradient-to-r from-[#092e67] to-[#21239f] text-white">
+                    <tr>
+                        <th class="px-6 py-5 text-left text-sm font-semibold uppercase tracking-wider">Orden</th>
+                        <th class="px-6 py-5 text-left text-sm font-semibold uppercase tracking-wider">Fecha</th>
+                        <th class="px-6 py-5 text-left text-sm font-semibold uppercase tracking-wider">Nombre</th>
+                        <th class="px-6 py-5 text-left text-sm font-semibold uppercase tracking-wider">Ciudad</th>
+                        <th class="px-6 py-5 text-left text-sm font-semibold uppercase tracking-wider">Línea</th>
+                        <th class="px-6 py-5 text-left text-sm font-semibold uppercase tracking-wider">Estado</th>
+                        <th class="px-6 py-5 text-left text-sm font-semibold uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200 bg-white">
+                    {% for order in orders %}
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-5">
+                            <span class="font-mono text-lg font-bold text-[#092e67]">{{ order.order_number }}</span>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div>
+                                <div class="text-sm font-semibold text-slate-900">{{ order.created_at|date:"d/m/Y" }}</div>
+                                <div class="text-xs text-slate-500">{{ order.created_at|date:"h:i A" }}</div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="flex items-center">
+                                <div class="bg-green-100 text-green-600 w-10 h-10 rounded-xl flex items-center justify-center mr-3">
+                                    <i class="fas fa-prescription-bottle"></i>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-semibold text-slate-900">{{ order.customer.name }}</div>
+                                    <div class="text-xs text-slate-500">{{ order.customer.nit }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <span class="text-sm text-slate-700">{{ order.customer.city }}</span>
+                        </td>
+                        <td class="px-6 py-5">
+                            <span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">TODO</span>
+                        </td>
+                        <td class="px-6 py-5">
+                            <select class="estado-select px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-[#092e67] focus:border-transparent" data-orden="{{ order.order_number }}">
+                                {% for value, name in statuses %}
+                                <option value="{{ value }}" {% if order.status == value %}selected{% endif %}>{{ name }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="flex space-x-2">
+                                <button class="text-[#092e67] hover:text-[#21239f] p-3 rounded-lg hover:bg-blue-50 transition-colors" title="Ver detalles">
+                                    <i class="fas fa-eye text-lg"></i>
+                                </button>
+                                <button class="text-[#f16664] hover:text-red-700 p-3 rounded-lg hover:bg-red-50 transition-colors" title="Descargar PDF">
+                                    <i class="fas fa-download text-lg"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center p-8 text-slate-500">No hay órdenes para gestionar.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

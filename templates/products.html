@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block title %}Gestión de Productos - Huden Platform{% endblock %}
+
+{% block content %}
+<div id="productos" class="content-section fade-in p-8">
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h2 class="text-4xl font-bold text-slate-800 mb-2">Gestión de Productos</h2>
+            <p class="text-slate-600 text-lg">Administra el catálogo completo de productos farmacéuticos</p>
+        </div>
+        <a href="{% url 'core:product_create' %}" class="btn-corporate-primary text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover-scale inline-block">
+            <i class="fas fa-plus mr-3"></i>Nuevo Producto
+        </a>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-xl p-8">
+        <!-- Barra de Búsqueda y Filtros -->
+        <form method="get" action="{% url 'core:product_list' %}">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+                <div class="md:col-span-2">
+                    <div class="relative">
+                        <input type="text" name="search" id="product-search" placeholder="Buscar por código, producto o composición..."
+                               value="{{ search_query }}"
+                               class="w-full px-6 py-4 pl-12 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#092e67] focus:border-transparent text-lg">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center">
+                            <i class="fas fa-search text-slate-400"></i>
+                        </div>
+                    </div>
+                </div>
+                <select name="line" id="line-filter" class="px-6 py-4 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#092e67] focus:border-transparent text-lg">
+                    <option value="">Todas las líneas</option>
+                    {% for value, name in lines %}
+                    <option value="{{ value }}" {% if selected_line == value %}selected{% endif %}>{{ name }}</option>
+                    {% endfor %}
+                </select>
+                <select name="status" id="status-filter" class="px-6 py-4 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#092e67] focus:border-transparent text-lg">
+                    <option value="">Todos los estados</option>
+                    {% for value, name in statuses %}
+                    <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ name }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn-corporate-secondary text-white px-6 py-4 rounded-xl font-semibold transition-colors">
+                    <i class="fas fa-filter mr-2"></i>Filtrar
+                </button>
+            </div>
+        </form>
+
+        <!-- Tabla de Productos -->
+        <div class="table-container rounded-xl border border-slate-200 overflow-hidden">
+            <table class="w-full">
+                <thead class="bg-gradient-to-r from-[#092e67] to-[#21239f] text-white">
+                    <tr>
+                        <th class="px-6 py-5 text-left text-sm font-semibold uppercase tracking-wider">Código</th>
+                        <th class="px-6 py-5 text-left text-sm font-semibold uppercase tracking-wider">Producto</th>
+                        <th class="px-6 py-5 text-left text-sm font-semibold uppercase tracking-wider">Composición</th>
+                        <th class="px-6 py-5 text-left text-sm font-semibold uppercase tracking-wider">Línea</th>
+                        <th class="px-6 py-5 text-left text-sm font-semibold uppercase tracking-wider">Precio</th>
+                        <th class="px-6 py-5 text-left text-sm font-semibold uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200 bg-white">
+                    {% for product in products %}
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-5">
+                            <span class="font-mono text-sm font-semibold text-[#092e67]">{{ product.code }}</span>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="flex items-center">
+                                <div class="bg-blue-100 text-[#092e67] w-12 h-12 rounded-xl flex items-center justify-center mr-4">
+                                    <i class="fas fa-prescription-bottle-alt text-lg"></i>
+                                </div>
+                                <div>
+                                    <div class="text-lg font-semibold text-slate-900">{{ product.name }}</div>
+                                    <div class="text-sm text-slate-500">{{ product.description }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <span class="text-sm text-slate-700">{{ product.composition }}</span>
+                        </td>
+                        <td class="px-6 py-5">
+                            <span class="px-4 py-2 text-sm font-semibold rounded-full bg-blue-100 text-[#092e67]">{{ product.get_line_display }}</span>
+                        </td>
+                        <td class="px-6 py-5">
+                            <span class="text-lg font-bold text-slate-900">${{ product.price|floatformat:0 }}</span>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="flex space-x-2">
+                                <a href="{% url 'core:product_edit' product.pk %}" class="text-yellow-600 hover:text-yellow-800 p-3 rounded-lg hover:bg-yellow-50 transition-colors" title="Editar">
+                                    <i class="fas fa-edit text-lg"></i>
+                                </a>
+                                <a href="{% url 'core:product_delete' product.pk %}" class="text-[#f16664] hover:text-red-700 p-3 rounded-lg hover:bg-red-50 transition-colors" title="Eliminar">
+                                    <i class="fas fa-trash text-lg"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center p-8 text-slate-500">
+                            No se encontraron productos que coincidan con su búsqueda.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginación (Hardcoded for now) -->
+        <div class="flex justify-between items-center mt-8">
+            <div class="text-sm text-slate-600">
+                Mostrando {{ products|length }} de {{ products.count }} productos
+            </div>
+            <div class="flex space-x-2">
+                <button class="px-4 py-2 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">Anterior</button>
+                <button class="px-4 py-2 bg-[#092e67] text-white rounded-lg">1</button>
+                <button class="px-4 py-2 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">2</button>
+                <button class="px-4 py-2 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">3</button>
+                <button class="px-4 py-2 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">Siguiente</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

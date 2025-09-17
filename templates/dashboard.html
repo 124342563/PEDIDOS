@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - Huden Platform{% endblock %}
+
+{% block content %}
+<!-- Dashboard Section -->
+<div id="dashboard" class="content-section fade-in p-8">
+    <div class="mb-8">
+        <h2 class="text-3xl font-bold text-slate-800 mb-2">Dashboard Principal</h2>
+        <p class="text-slate-600">Resumen general de operaciones y distribución</p>
+    </div>
+
+    <!-- Tarjetas de Estadísticas -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="stat-card p-6 rounded-2xl hover-scale">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-slate-600 text-sm font-medium">Línea Magistral</p>
+                    <p class="text-3xl font-bold text-slate-800">156</p>
+                    <p class="text-xs text-green-600 mt-1">↑ +12% este mes</p>
+                </div>
+                <div class="bg-blue-100 text-[#092e67] w-14 h-14 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-prescription-bottle-alt text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card p-6 rounded-2xl hover-scale">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-slate-600 text-sm font-medium">Línea Oral</p>
+                    <p class="text-3xl font-bold text-slate-800">89</p>
+                    <p class="text-xs text-green-600 mt-1">↑ +8% este mes</p>
+                </div>
+                <div class="bg-purple-100 text-purple-600 w-14 h-14 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-pills text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card p-6 rounded-2xl hover-scale">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-slate-600 text-sm font-medium">Producto Terminado</p>
+                    <p class="text-3xl font-bold text-slate-800">234</p>
+                    <p class="text-xs text-green-600 mt-1">↑ +15% este mes</p>
+                </div>
+                <div class="bg-green-100 text-green-600 w-14 h-14 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-box text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card p-6 rounded-2xl hover-scale">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-slate-600 text-sm font-medium">Total Clientes</p>
+                    <p class="text-3xl font-bold text-slate-800">342</p>
+                    <p class="text-xs text-green-600 mt-1">↑ +5% este mes</p>
+                </div>
+                <div class="bg-orange-100 text-orange-600 w-14 h-14 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-hospital text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos y Actividad Reciente -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div class="bg-white rounded-2xl shadow-lg p-6">
+            <h3 class="text-xl font-semibold text-slate-800 mb-4">
+                <i class="fas fa-chart-pie text-blue-600 mr-2"></i>
+                Distribución por Línea
+            </h3>
+            <canvas id="chartLineas" width="400" height="300"></canvas>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-lg p-6">
+            <h3 class="text-xl font-semibold text-slate-800 mb-4">
+                <i class="fas fa-clock text-orange-600 mr-2"></i>
+                Actividad Reciente
+            </h3>
+            <div class="space-y-4">
+                <div class="flex items-center space-x-3 p-3 bg-slate-50 rounded-xl">
+                    <div class="bg-blue-100 text-blue-600 w-10 h-10 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium">Nuevo pedido creado</p>
+                        <p class="text-xs text-slate-500">Hospital San Juan - hace 5 min</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3 p-3 bg-slate-50 rounded-xl">
+                    <div class="bg-green-100 text-green-600 w-10 h-10 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium">Pedido entregado</p>
+                        <p class="text-xs text-slate-500">Clínica del Norte - hace 15 min</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3 p-3 bg-slate-50 rounded-xl">
+                    <div class="bg-purple-100 text-purple-600 w-10 h-10 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium">Nuevo cliente registrado</p>
+                        <p class="text-xs text-slate-500">Farmacia Central - hace 1 hora</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

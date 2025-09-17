@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+{% block title %}Nuevo Pedido - Huden Platform{% endblock %}
+
+{% block content %}
+<div id="nuevo-pedido" class="content-section fade-in p-8">
+    <div class="mb-8">
+        <h2 class="text-4xl font-bold text-slate-800 mb-2">Crear Nuevo Pedido</h2>
+        <p class="text-slate-600 text-lg">Complete la información para generar un nuevo pedido</p>
+    </div>
+
+    <form id="create-order-form">
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+            <!-- Columna 1: Información del Cliente y Productos -->
+            <div class="xl:col-span-2 space-y-8">
+                <div class="bg-white rounded-2xl shadow-xl p-8">
+                    <h3 class="text-2xl font-semibold text-slate-800 mb-6 flex items-center">
+                        <i class="fas fa-hospital text-[#092e67] mr-3"></i>
+                        Información del Cliente
+                    </h3>
+                    <div class="space-y-6">
+                        <div>
+                            <label for="customer-select" class="block text-sm font-semibold text-slate-700 mb-3">Cliente</label>
+                            <select id="customer-select" name="customer" class="w-full px-4 py-4 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#092e67] focus:border-transparent text-lg">
+                                <option value="">Seleccionar cliente...</option>
+                                {% for customer in customers %}
+                                <option value="{{ customer.id }}">{{ customer.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-xl p-8">
+                    <h3 class="text-2xl font-semibold text-slate-800 mb-6 flex items-center">
+                        <i class="fas fa-pills text-[#21239f] mr-3"></i>
+                        Productos del Pedido
+                    </h3>
+
+                    <!-- Formulario para agregar productos -->
+                    <div class="border border-slate-200 rounded-xl p-4 space-y-4">
+                        <select id="product-select" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#092e67] focus:border-transparent">
+                            <option value="">Seleccionar producto...</option>
+                            {% for product in products %}
+                            <option value="{{ product.id }}" data-price="{{ product.price }}">{{ product.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="number" id="product-quantity" placeholder="Cantidad" min="1" value="1" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#092e67] focus:border-transparent">
+                            <input type="text" id="product-price" placeholder="Precio" readonly class="w-full bg-slate-100 px-4 py-3 border border-slate-200 rounded-xl">
+                        </div>
+                        <button type="button" id="add-product-btn" class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl transition-colors">
+                            <i class="fas fa-plus mr-2"></i>Agregar Producto
+                        </button>
+                    </div>
+
+                    <!-- Lista de productos agregados -->
+                    <div id="productos-lista" class="space-y-3 mt-6">
+                        <!-- Items will be added here by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Columna 2: Comentarios y Resumen -->
+            <div class="space-y-8">
+                <div class="bg-white rounded-2xl shadow-xl p-8">
+                    <h3 class="text-2xl font-semibold text-slate-800 mb-6 flex items-center">
+                        <i class="fas fa-comment-alt text-slate-600 mr-3"></i>
+                        Comentarios
+                    </h3>
+                    <textarea id="order-comments" placeholder="Comentarios adicionales del pedido..." rows="6"
+                              class="w-full px-4 py-4 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#092e67] focus:border-transparent resize-none text-lg"></textarea>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-xl p-8">
+                    <h3 class="text-2xl font-semibold text-slate-800 mb-6">Resumen</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-600">Subtotal:</span>
+                            <span id="subtotal" class="font-bold text-slate-800">$0</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-600">IVA (19%):</span>
+                            <span id="iva" class="font-bold text-slate-800">$0</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xl font-bold">
+                            <span class="text-slate-900">Total:</span>
+                            <span id="total" class="text-green-600">$0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="mt-8 flex flex-col space-y-4">
+                    <button type="submit" id="submit-order-btn" class="btn-corporate-primary text-white w-full px-12 py-4 rounded-xl font-semibold shadow-lg hover-scale">
+                        <i class="fas fa-save mr-3"></i>Crear Pedido
+                    </button>
+                    <button type="button" class="bg-slate-500 hover:bg-slate-600 text-white w-full px-8 py-4 rounded-xl font-semibold transition-colors shadow-lg">
+                        <i class="fas fa-times mr-3"></i>Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const productSelect = document.getElementById('product-select');
+    const priceInput = document.getElementById('product-price');
+    const quantityInput = document.getElementById('product-quantity');
+    const addProductBtn = document.getElementById('add-product-btn');
+    const productListDiv = document.getElementById('productos-lista');
+    const createOrderForm = document.getElementById('create-order-form');
+
+    let orderItems = [];
+
+    // Update price when product is selected
+    productSelect.addEventListener('change', function () {
+        const selectedOption = this.options[this.selectedIndex];
+        priceInput.value = selectedOption.dataset.price ? `$${parseFloat(selectedOption.dataset.price).toLocaleString('es-CO')}` : '';
+    });
+
+    // Add product to the list
+    addProductBtn.addEventListener('click', function () {
+        const productId = productSelect.value;
+        const quantity = parseInt(quantityInput.value, 10);
+
+        if (!productId || !quantity || quantity < 1) {
+            alert('Por favor, seleccione un producto y una cantidad válida.');
+            return;
+        }
+
+        const existingItem = orderItems.find(item => item.product_id == productId);
+        if (existingItem) {
+            alert('Este producto ya ha sido agregado. Puede editar la cantidad en la lista.');
+            return;
+        }
+
+        const selectedOption = productSelect.options[productSelect.selectedIndex];
+        const productName = selectedOption.text;
+        const price = parseFloat(selectedOption.dataset.price);
+
+        orderItems.push({
+            product_id: productId,
+            product_name: productName,
+            quantity: quantity,
+            price: price
+        });
+
+        renderProductList();
+        updateSummary();
+    });
+
+    function renderProductList() {
+        productListDiv.innerHTML = '';
+        orderItems.forEach((item, index) => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'bg-slate-50 rounded-xl p-4 flex justify-between items-center';
+            itemDiv.innerHTML = `
+                <div>
+                    <p class="font-semibold">${item.product_name}</p>
+                    <p class="text-sm text-slate-600">Cantidad: ${item.quantity} | Precio: $${item.price.toLocaleString('es-CO')}</p>
+                </div>
+                <button type="button" data-index="${index}" class="remove-item-btn text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            productListDiv.appendChild(itemDiv);
+        });
+
+        // Add event listeners to remove buttons
+        document.querySelectorAll('.remove-item-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const indexToRemove = parseInt(this.dataset.index, 10);
+                orderItems.splice(indexToRemove, 1);
+                renderProductList();
+                updateSummary();
+            });
+        });
+    }
+
+    function updateSummary() {
+        const subtotal = orderItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+        const iva = subtotal * 0.19;
+        const total = subtotal + iva;
+
+        document.getElementById('subtotal').textContent = `$${subtotal.toLocaleString('es-CO')}`;
+        document.getElementById('iva').textContent = `$${iva.toLocaleString('es-CO')}`;
+        document.getElementById('total').textContent = `$${total.toLocaleString('es-CO')}`;
+    }
+
+    // Handle final form submission
+    createOrderForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const customerId = document.getElementById('customer-select').value;
+        const comments = document.getElementById('order-comments').value;
+
+        if (!customerId) {
+            alert('Por favor, seleccione un cliente.');
+            return;
+        }
+        if (orderItems.length === 0) {
+            alert('Por favor, agregue al menos un producto al pedido.');
+            return;
+        }
+
+        const payload = {
+            customer_id: parseInt(customerId, 10),
+            comments: comments,
+            items: orderItems.map(item => ({
+                product_id: parseInt(item.product_id, 10),
+                quantity: item.quantity
+            }))
+        };
+
+        fetch("{% url 'core:create_order' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                // CSRF token would be needed here in a more secure setup
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Pedido creado exitosamente!');
+                window.location.href = data.redirect_url;
+            } else {
+                alert('Error al crear el pedido: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Ocurrió un error de red. Por favor, intente de nuevo.');
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Laboratorios Huden SAS - Plataforma{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body, html {
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar-collapsed {
+            width: 80px !important;
+        }
+
+        .sidebar-collapsed .menu-text {
+            display: none;
+        }
+
+        .sidebar-collapsed .logo-text {
+            display: none;
+        }
+
+        .sidebar-transition {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .content-transition {
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .menu-item {
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .menu-item:hover::before {
+            left: 100%;
+        }
+
+        .menu-item.active {
+            background: linear-gradient(135deg, #092e67 0%, #21239f 100%);
+            box-shadow: 0 4px 12px rgba(9, 46, 103, 0.3);
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .notification-badge {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #092e67 0%, #21239f 50%, #f16664 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hover-scale {
+            transition: transform 0.2s ease;
+        }
+
+        .hover-scale:hover {
+            transform: scale(1.05);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .main-content {
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+        }
+
+        .table-container {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .search-highlight {
+            background-color: #fef3c7;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
+        .btn-corporate-primary {
+            background: linear-gradient(135deg, #092e67 0%, #21239f 100%);
+            transition: all 0.3s ease;
+        }
+
+        .btn-corporate-primary:hover {
+            background: linear-gradient(135deg, #21239f 0%, #f16664 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(9, 46, 103, 0.3);
+        }
+
+        .btn-corporate-secondary {
+            background: linear-gradient(135deg, #f16664 0%, #21239f 100%);
+            transition: all 0.3s ease;
+        }
+
+        .btn-corporate-secondary:hover {
+            background: linear-gradient(135deg, #21239f 0%, #092e67 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(241, 102, 100, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-slate-50">
+    <!-- Header Superior -->
+    <header class="bg-white shadow-lg border-b border-slate-200 fixed w-full top-0 z-50 h-20">
+        <div class="flex items-center justify-between px-6 py-4 h-full">
+            <!-- Logo y Menú Toggle -->
+            <div class="flex items-center space-x-4">
+                <button id="sidebar-toggle" class="bg-[#092e67] hover:bg-[#21239f] text-white p-3 rounded-xl transition-colors shadow-lg">
+                    <i class="fas fa-bars text-lg"></i>
+                </button>
+
+                <div class="flex items-center space-x-3">
+                    <div class="bg-gradient-to-br from-[#092e67] to-[#21239f] text-white w-12 h-12 rounded-xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-flask text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold gradient-text">Laboratorios Huden SAS</h1>
+                        <p class="text-sm text-slate-500">Plataforma de Distribución Farmacéutica</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controles de Usuario -->
+            <div class="flex items-center space-x-4">
+                <!-- Perfil de Usuario -->
+                <div class="relative">
+                    <button id="user-menu-btn" class="flex items-center space-x-3 hover:bg-slate-50 rounded-xl p-2 transition-colors">
+                        <div class="bg-blue-100 text-[#092e67] w-12 h-12 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-user text-lg"></i>
+                        </div>
+                        <div class="hidden md:block">
+                            <p class="text-sm font-semibold text-slate-800">{{ user.get_full_name|default:user.username }}</p>
+                            <p class="text-xs text-slate-500">{{ user.get_role_display }}</p>
+                        </div>
+                        <div class="hidden md:block">
+                            <i class="fas fa-chevron-down text-slate-400 text-sm"></i>
+                        </div>
+                    </button>
+
+                    <!-- Dropdown Menu -->
+                    <div id="user-dropdown" class="hidden absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-200 z-50">
+                        <div class="p-2">
+                            <div class="px-4 py-3 border-b border-slate-100">
+                                <p class="text-sm font-semibold text-slate-800">{{ user.get_full_name|default:user.username }}</p>
+                                <p class="text-xs text-slate-500">{{ user.email }}</p>
+                            </div>
+                            <a href="{% url 'core:logout' %}" id="dropdown-logout-btn" class="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center mt-2">
+                                <i class="fas fa-sign-out-alt mr-3"></i>
+                                Cerrar Sesión
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex pt-20 h-screen">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="bg-gradient-to-b from-slate-800 to-slate-900 text-white w-72 h-full shadow-2xl sidebar-transition fixed lg:relative z-40 overflow-y-auto">
+            <div class="p-6">
+                <!-- Información del Usuario -->
+                <div class="bg-gradient-to-r from-[#092e67] to-[#21239f] rounded-xl p-4 mb-6 logo-text">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-white/20 w-12 h-12 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                            <i class="fas fa-user-tie text-xl text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">{{ user.get_full_name|default:user.username }}</h3>
+                            <p class="text-sm text-white/80">{{ user.get_role_display }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Menú de Navegación -->
+                <nav class="space-y-2">
+                    <a href="{% url 'core:home' %}" class="menu-item active w-full text-left px-4 py-3 rounded-xl flex items-center group" data-section="dashboard">
+                        <i class="fas fa-tachometer-alt mr-4 text-lg group-hover:scale-110 transition-transform min-w-[24px]"></i>
+                        <span class="font-medium menu-text">Dashboard</span>
+                    </a>
+
+                    <a href="{% url 'core:product_list' %}" class="menu-item w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700 flex items-center group" data-section="productos">
+                        <i class="fas fa-pills mr-4 text-lg group-hover:scale-110 transition-transform min-w-[24px]"></i>
+                        <span class="font-medium menu-text">Productos</span>
+                    </a>
+
+                    <a href="{% url 'core:create_order' %}" class="menu-item w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700 flex items-center group" data-section="nuevo-pedido">
+                        <i class="fas fa-plus-circle mr-4 text-lg group-hover:scale-110 transition-transform min-w-[24px]"></i>
+                        <span class="font-medium menu-text">Nuevo Pedido</span>
+                    </a>
+
+                    <a href="{% url 'core:customer_list' %}" class="menu-item w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700 flex items-center group" data-section="clientes">
+                        <i class="fas fa-hospital mr-4 text-lg group-hover:scale-110 transition-transform min-w-[24px]"></i>
+                        <span class="font-medium menu-text">Clientes</span>
+                    </a>
+
+                    <a href="{% url 'core:order_list_terminado' %}" class="menu-item w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700 flex items-center group" data-section="ordenes-terminado">
+                        <i class="fas fa-box mr-4 text-lg group-hover:scale-110 transition-transform min-w-[24px]"></i>
+                        <span class="font-medium menu-text">Órdenes Producto Terminado</span>
+                    </a>
+
+                    <a href="{% url 'core:order_list_magistrales' %}" class="menu-item w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700 flex items-center group" data-section="ordenes-magistrales">
+                        <i class="fas fa-prescription-bottle-alt mr-4 text-lg group-hover:scale-110 transition-transform min-w-[24px]"></i>
+                        <span class="font-medium menu-text">Órdenes Magistrales</span>
+                    </a>
+
+                    <a href="{% url 'core:logistics_list' %}" class="menu-item w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700 flex items-center group" data-section="logistica">
+                        <i class="fas fa-truck mr-4 text-lg group-hover:scale-110 transition-transform min-w-[24px]"></i>
+                        <span class="font-medium menu-text">Logística</span>
+                    </a>
+
+                    <button class="menu-item w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700 flex items-center group" data-section="usuarios">
+                        <i class="fas fa-users-cog mr-4 text-lg group-hover:scale-110 transition-transform min-w-[24px]"></i>
+                        <span class="font-medium menu-text">Gestión de Usuarios</span>
+                    </button>
+
+                    <button class="menu-item w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700 flex items-center group" data-section="notificaciones">
+                        <i class="fas fa-bell mr-4 text-lg group-hover:scale-110 transition-transform min-w-[24px]"></i>
+                        <span class="font-medium menu-text">Notificaciones</span>
+                        <span class="ml-auto bg-[#f16664] text-xs px-2 py-1 rounded-full menu-text">3</span>
+                    </button>
+                </nav>
+
+                <!-- Estadísticas Rápidas -->
+                <div class="mt-8 p-4 bg-slate-700/50 rounded-xl backdrop-blur-sm logo-text">
+                    <h3 class="text-sm font-semibold mb-4 text-slate-300">Resumen del Día</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-slate-300">Pedidos Hoy:</span>
+                            <span class="font-bold text-green-400">23</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-slate-300">En Proceso:</span>
+                            <span class="font-bold text-yellow-400">8</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-slate-300">Entregados:</span>
+                            <span class="font-bold text-blue-400">15</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botón de Salir -->
+                <div class="mt-8">
+                    <a href="{% url 'core:logout' %}" id="logout-btn" class="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-4 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl">
+                        <i class="fas fa-sign-out-alt mr-2"></i>
+                        <span class="menu-text">Salir</span>
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Overlay para móvil -->
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden hidden"></div>
+
+        <!-- Área de Contenido Principal -->
+        <main class="flex-1 main-content content-transition lg:ml-0 overflow-y-auto bg-slate-50">
+            {% block content %}
+            {% endblock %}
+        </main>
+    </div>
+
+    <script>
+        // Funcionalidad de navegación
+        document.querySelectorAll('.menu-item').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const section = this.dataset.section;
+
+                // Ocultar todas las secciones
+                document.querySelectorAll('.content-section').forEach(section => {
+                    section.classList.add('hidden');
+                });
+
+                // Mostrar la sección seleccionada
+                document.getElementById(section).classList.remove('hidden');
+
+                // Actualizar estado activo del menú
+                document.querySelectorAll('.menu-item').forEach(b => {
+                    b.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+
+        // Toggle sidebar colapsable
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const main = document.querySelector('main');
+
+            // En desktop, colapsar/expandir
+            if (window.innerWidth >= 1024) {
+                sidebar.classList.toggle('sidebar-collapsed');
+                if (sidebar.classList.contains('sidebar-collapsed')) {
+                    main.style.marginLeft = '80px';
+                } else {
+                    main.style.marginLeft = '288px';
+                }
+            } else {
+                // En móvil, mostrar/ocultar
+                const overlay = document.getElementById('sidebar-overlay');
+                sidebar.classList.toggle('-translate-x-full');
+                overlay.classList.toggle('hidden');
+            }
+        });
+
+        // Cerrar sidebar al hacer click en overlay (móvil)
+        document.getElementById('sidebar-overlay').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
+        });
+
+        // Funcionalidad del dropdown de usuario
+        document.getElementById('user-menu-btn').addEventListener('click', function(e) {
+            e.stopPropagation();
+            const dropdown = document.getElementById('user-dropdown');
+            dropdown.classList.toggle('hidden');
+        });
+
+        // Cerrar dropdown al hacer click fuera
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('user-dropdown');
+            const userMenuBtn = document.getElementById('user-menu-btn');
+
+            if (userMenuBtn && !userMenuBtn.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        // Datos de clientes para el formulario de pedidos
+        const clientesData = {
+            'hospital-san-juan': {
+                nit: '890.123.456-1',
+                direccion: 'Calle 45 # 23-67',
+                ciudad: 'Bogotá D.C.'
+            },
+            'clinica-norte': {
+                nit: '890.987.654-3',
+                direccion: 'Carrera 15 # 85-32',
+                ciudad: 'Medellín'
+            },
+            'farmacia-central': {
+                nit: '890.555.777-9',
+                direccion: 'Avenida 68 # 12-45',
+                ciudad: 'Cali'
+            },
+            'distribuidora-salud': {
+                nit: '890.333.888-2',
+                direccion: 'Zona Industrial Km 5',
+                ciudad: 'Barranquilla'
+            }
+        };
+
+        // Mostrar información del cliente seleccionado
+        document.getElementById('cliente-select')?.addEventListener('change', function() {
+            const clienteInfo = document.getElementById('cliente-info');
+            const clienteData = clientesData[this.value];
+
+            if (clienteData) {
+                document.getElementById('cliente-nit').textContent = clienteData.nit;
+                document.getElementById('cliente-direccion').textContent = clienteData.direccion;
+                document.getElementById('cliente-ciudad').textContent = clienteData.ciudad;
+                clienteInfo.classList.remove('hidden');
+            } else {
+                clienteInfo.classList.add('hidden');
+            }
+        });
+
+        // Funcionalidad de exportación a PDF para Producto Terminado
+        document.getElementById('export-pdf-terminado-btn')?.addEventListener('click', function() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Configurar el PDF
+            doc.setFontSize(20);
+            doc.text('Laboratorios Huden SAS', 20, 20);
+            doc.setFontSize(16);
+            doc.text('Reporte de Órdenes - Producto Terminado', 20, 35);
+
+            // Agregar fecha
+            const fecha = new Date().toLocaleDateString('es-CO');
+            doc.setFontSize(12);
+            doc.text(`Fecha de generación: ${fecha}`, 20, 50);
+
+            // Datos de ejemplo de las órdenes
+            const ordenes = [
+                ['PT-2024-001', '17/01/2024', 'Farmacia Central', 'Pendiente', '$3,200,000'],
+                ['PT-2024-002', '18/01/2024', 'Distribuidora Salud', 'Entregado', '$5,800,000'],
+                ['PT-2024-003', '19/01/2024', 'Hospital San Juan', 'En Proceso', '$2,100,000']
+            ];
+
+            // Encabezados de la tabla
+            let yPosition = 70;
+            doc.setFontSize(10);
+            doc.text('Serial', 20, yPosition);
+            doc.text('Fecha', 50, yPosition);
+            doc.text('Cliente', 80, yPosition);
+            doc.text('Estado', 130, yPosition);
+            doc.text('Total', 170, yPosition);
+
+            // Línea separadora
+            yPosition += 5;
+            doc.line(20, yPosition, 200, yPosition);
+
+            // Datos de las órdenes
+            yPosition += 10;
+            ordenes.forEach(orden => {
+                doc.text(orden[0], 20, yPosition);
+                doc.text(orden[1], 50, yPosition);
+                doc.text(orden[2], 80, yPosition);
+                doc.text(orden[3], 130, yPosition);
+                doc.text(orden[4], 170, yPosition);
+                yPosition += 10;
+            });
+
+            // Total
+            yPosition += 10;
+            doc.line(20, yPosition, 200, yPosition);
+            yPosition += 10;
+            doc.setFontSize(12);
+            doc.text('Total Facturado: $11,100,000', 20, yPosition);
+
+            // Descargar el PDF
+            doc.save('ordenes-producto-terminado-huden.pdf');
+
+            // Mostrar mensaje de éxito
+            alert('PDF de Producto Terminado generado exitosamente');
+        });
+
+        // Funcionalidad de exportación a PDF para Magistrales
+        document.getElementById('export-pdf-magistrales-btn')?.addEventListener('click', function() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Configurar el PDF
+            doc.setFontSize(20);
+            doc.text('Laboratorios Huden SAS', 20, 20);
+            doc.setFontSize(16);
+            doc.text('Reporte de Órdenes - Magistrales', 20, 35);
+
+            // Agregar fecha
+            const fecha = new Date().toLocaleDateString('es-CO');
+            doc.setFontSize(12);
+            doc.text(`Fecha de generación: ${fecha}`, 20, 50);
+
+            // Datos de ejemplo de las órdenes
+            const ordenes = [
+                ['MAG-2024-001', '15/01/2024', 'Hospital San Juan', 'Entregado', '$2,500,000'],
+                ['MAG-2024-002', '18/01/2024', 'Clínica del Norte', 'En Proceso', '$4,200,000'],
+                ['MAG-2024-003', '20/01/2024', 'Distribuidora Salud', 'Pendiente', '$3,800,000']
+            ];
+
+            // Encabezados de la tabla
+            let yPosition = 70;
+            doc.setFontSize(10);
+            doc.text('Serial', 20, yPosition);
+            doc.text('Fecha', 50, yPosition);
+            doc.text('Cliente', 80, yPosition);
+            doc.text('Estado', 130, yPosition);
+            doc.text('Total', 170, yPosition);
+
+            // Línea separadora
+            yPosition += 5;
+            doc.line(20, yPosition, 200, yPosition);
+
+            // Datos de las órdenes
+            yPosition += 10;
+            ordenes.forEach(orden => {
+                doc.text(orden[0], 20, yPosition);
+                doc.text(orden[1], 50, yPosition);
+                doc.text(orden[2], 80, yPosition);
+                doc.text(orden[3], 130, yPosition);
+                doc.text(orden[4], 170, yPosition);
+                yPosition += 10;
+            });
+
+            // Total
+            yPosition += 10;
+            doc.line(20, yPosition, 200, yPosition);
+            yPosition += 10;
+            doc.setFontSize(12);
+            doc.text('Total Facturado: $10,500,000', 20, yPosition);
+
+            // Descargar el PDF
+            doc.save('ordenes-magistrales-huden.pdf');
+
+            // Mostrar mensaje de éxito
+            alert('PDF de Magistrales generado exitosamente');
+        });
+
+        // Funcionalidad de búsqueda en tiempo real
+        function setupSearch(searchInputId, tableSelector) {
+            const searchInput = document.getElementById(searchInputId);
+            if (!searchInput) return;
+
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const rows = document.querySelectorAll(`${tableSelector} tbody tr`);
+
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        row.style.display = '';
+                        // Resaltar términos encontrados
+                        if (searchTerm) {
+                            row.querySelectorAll('td').forEach(cell => {
+                                const originalText = cell.textContent;
+                                if (originalText.toLowerCase().includes(searchTerm)) {
+                                    const regex = new RegExp(`(${searchTerm})`, 'gi');
+                                    cell.innerHTML = originalText.replace(regex, '<span class="search-highlight">$1</span>');
+                                }
+                            });
+                        }
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        // Configurar búsquedas para todas las tablas
+        setupSearch('product-search', '#productos table');
+        setupSearch('client-search', '#clientes table');
+        setupSearch('order-terminado-search', '#ordenes-terminado table');
+        setupSearch('order-magistrales-search', '#ordenes-magistrales table');
+        setupSearch('logistica-search', '#logistica table');
+
+        // Inicializar gráfico
+        document.addEventListener('DOMContentLoaded', function() {
+            const chartElement = document.getElementById('chartLineas');
+            if (chartElement) {
+                const ctx = chartElement.getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Línea Magistral', 'Línea Oral', 'Producto Terminado'],
+                        datasets: [{
+                            data: [156, 89, 234],
+                            backgroundColor: [
+                                '#092e67',
+                                '#21239f',
+                                '#f16664'
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20,
+                                    usePointStyle: true
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+
+        // Animación de números
+        function animateNumbers() {
+            const counters = document.querySelectorAll('.stat-card .text-3xl');
+            counters.forEach(counter => {
+                const target = parseInt(counter.textContent);
+                let current = 0;
+                const increment = target / 50;
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        counter.textContent = target;
+                        clearInterval(timer);
+                    } else {
+                        counter.textContent = Math.floor(current);
+                    }
+                }, 30);
+            });
+        }
+
+        // Ajustar sidebar en cambio de tamaño de ventana
+        window.addEventListener('resize', function() {
+            const sidebar = document.getElementById('sidebar');
+            const main = document.querySelector('main');
+
+            if (window.innerWidth >= 1024) {
+                sidebar.classList.remove('-translate-x-full');
+                document.getElementById('sidebar-overlay').classList.add('hidden');
+
+                if (sidebar.classList.contains('sidebar-collapsed')) {
+                    main.style.marginLeft = '80px';
+                } else {
+                    main.style.marginLeft = '288px';
+                }
+            } else {
+                main.style.marginLeft = '0';
+            }
+        });
+
+        // Funcionalidad de cambio de estado en logística
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('estado-select')) {
+                const orden = e.target.dataset.orden;
+                const nuevoEstado = e.target.value;
+                const estadoTexto = e.target.options[e.target.selectedIndex].text;
+
+                // Mostrar confirmación
+                if (confirm(`¿Confirmar cambio de estado para la orden ${orden} a "${estadoTexto}"?`)) {
+                    // Aquí se haría la llamada al backend para actualizar el estado
+                    console.log(`Estado actualizado: ${orden} -> ${nuevoEstado}`);
+
+                    // Mostrar mensaje de éxito
+                    const mensaje = document.createElement('div');
+                    mensaje.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-xl shadow-lg z-50';
+                    mensaje.innerHTML = `<i class="fas fa-check mr-2"></i>Estado actualizado correctamente`;
+                    document.body.appendChild(mensaje);
+
+                    // Remover mensaje después de 3 segundos
+                    setTimeout(() => {
+                        mensaje.remove();
+                    }, 3000);
+                } else {
+                    // Revertir el cambio si se cancela
+                    e.target.selectedIndex = 0;
+                }
+            }
+        });
+
+        // Funcionalidad de exportación a PDF para Logística
+        document.getElementById('export-pdf-logistica-btn')?.addEventListener('click', function() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Configurar el PDF
+            doc.setFontSize(20);
+            doc.text('Laboratorios Huden SAS', 20, 20);
+            doc.setFontSize(16);
+            doc.text('Reporte de Logística - Control de Entregas', 20, 35);
+
+            // Agregar fecha
+            const fecha = new Date().toLocaleDateString('es-CO');
+            doc.setFontSize(12);
+            doc.text(`Fecha de generación: ${fecha}`, 20, 50);
+
+            // Datos de ejemplo de logística
+            const ordenes = [
+                ['PT-2024-001', '17/01/2024', 'Farmacia Central', 'Cali', 'Terminado', 'En Empaque'],
+                ['MAG-2024-001', '15/01/2024', 'Hospital San Juan', 'Bogotá D.C.', 'Magistral', 'En Tránsito'],
+                ['PT-2024-002', '18/01/2024', 'Distribuidora Salud', 'Barranquilla', 'Terminado', 'Entregado'],
+                ['MAG-2024-002', '18/01/2024', 'Clínica del Norte', 'Medellín', 'Magistral', 'En Preparación'],
+                ['PT-2024-003', '19/01/2024', 'Hospital San Juan', 'Bogotá D.C.', 'Terminado', 'Devuelto']
+            ];
+
+            // Encabezados de la tabla
+            let yPosition = 70;
+            doc.setFontSize(9);
+            doc.text('Orden', 20, yPosition);
+            doc.text('Fecha', 45, yPosition);
+            doc.text('Cliente', 70, yPosition);
+            doc.text('Ciudad', 110, yPosition);
+            doc.text('Línea', 140, yPosition);
+            doc.text('Estado', 170, yPosition);
+
+            // Línea separadora
+            yPosition += 5;
+            doc.line(20, yPosition, 200, yPosition);
+
+            // Datos de las órdenes
+            yPosition += 10;
+            ordenes.forEach(orden => {
+                doc.text(orden[0], 20, yPosition);
+                doc.text(orden[1], 45, yPosition);
+                doc.text(orden[2], 70, yPosition);
+                doc.text(orden[3], 110, yPosition);
+                doc.text(orden[4], 140, yPosition);
+                doc.text(orden[5], 170, yPosition);
+                yPosition += 10;
+            });
+
+            // Estadísticas
+            yPosition += 10;
+            doc.line(20, yPosition, 200, yPosition);
+            yPosition += 10;
+            doc.setFontSize(10);
+            doc.text('Resumen de Estados:', 20, yPosition);
+            yPosition += 10;
+            doc.text('• En Preparación: 12 órdenes', 25, yPosition);
+            yPosition += 8;
+            doc.text('• En Empaque: 8 órdenes', 25, yPosition);
+            yPosition += 8;
+            doc.text('• En Tránsito: 15 órdenes', 25, yPosition);
+            yPosition += 8;
+            doc.text('• Entregado: 23 órdenes', 25, yPosition);
+            yPosition += 8;
+            doc.text('• Devuelto: 2 órdenes', 25, yPosition);
+
+            // Descargar el PDF
+            doc.save('logistica-huden.pdf');
+
+            // Mostrar mensaje de éxito
+            alert('PDF de Logística generado exitosamente');
+        });
+
+        // Funcionalidad de exportación a Excel para Logística
+        document.getElementById('export-excel-logistica-btn')?.addEventListener('click', function() {
+            // Obtener datos de la tabla
+            const table = document.getElementById('logistica-table');
+            const rows = table.querySelectorAll('tbody tr');
+
+            // Crear datos para Excel
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Orden,Fecha,Nombre,Ciudad,Línea,Estado\n";
+
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                const orden = cells[0].textContent.trim();
+                const fecha = cells[1].textContent.trim().replace(/\s+/g, ' ');
+                const nombre = cells[2].querySelector('.text-sm.font-semibold').textContent.trim();
+                const ciudad = cells[3].textContent.trim();
+                const linea = cells[4].textContent.trim();
+                const estado = cells[5].querySelector('select').options[cells[5].querySelector('select').selectedIndex].text;
+
+                csvContent += `"${orden}","${fecha}","${nombre}","${ciudad}","${linea}","${estado}"\n`;
+            });
+
+            // Crear y descargar el archivo
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "logistica-huden.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // Mostrar mensaje de éxito
+            alert('Archivo Excel de Logística exportado exitosamente');
+        });
+
+        // Funcionalidad de filtros para logística
+        document.getElementById('logistica-linea-filter')?.addEventListener('change', function() {
+            const filtroLinea = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#logistica-table tbody tr');
+
+            rows.forEach(row => {
+                const lineaCell = row.querySelector('td:nth-child(5)');
+                const lineaTexto = lineaCell.textContent.toLowerCase();
+
+                if (!filtroLinea || lineaTexto.includes(filtroLinea)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
+        document.getElementById('logistica-estado-filter')?.addEventListener('change', function() {
+            const filtroEstado = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#logistica-table tbody tr');
+
+            rows.forEach(row => {
+                const estadoSelect = row.querySelector('.estado-select');
+                const estadoTexto = estadoSelect.options[estadoSelect.selectedIndex].text.toLowerCase();
+
+                if (!filtroEstado || estadoTexto.includes(filtroEstado.replace('_', ' '))) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
+        // Ejecutar animación al cargar
+        setTimeout(animateNumbers, 500);
+
+        // Inicializar estado del sidebar en desktop
+        if (window.innerWidth >= 1024) {
+            document.querySelector('main').style.marginLeft = '288px';
+        }
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

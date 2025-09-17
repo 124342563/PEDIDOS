@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}Gestión de Clientes - Huden Platform{% endblock %}
+
+{% block content %}
+<div id="clientes" class="content-section fade-in p-8">
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h2 class="text-4xl font-bold text-slate-800 mb-2">Gestión de Clientes</h2>
+            <p class="text-slate-600 text-lg">Base de datos de hospitales, clínicas y farmacias</p>
+        </div>
+        <a href="{% url 'core:customer_create' %}" class="btn-corporate-secondary text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover-scale inline-block">
+            <i class="fas fa-hospital mr-3"></i>Nuevo Cliente
+        </a>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-xl p-8">
+        <!-- Barra de Búsqueda y Filtros -->
+        <form method="get" action="{% url 'core:customer_list' %}">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="md:col-span-2">
+                    <div class="relative">
+                        <input type="text" name="search" id="client-search" placeholder="Buscar por cliente, NIT o ciudad..."
+                               value="{{ search_query }}"
+                               class="w-full px-6 py-4 pl-12 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#092e67] focus:border-transparent text-lg">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center">
+                            <i class="fas fa-search text-slate-400"></i>
+                        </div>
+                    </div>
+                </div>
+                <select name="type" id="client-type-filter" class="px-6 py-4 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#092e67] focus:border-transparent text-lg">
+                    <option value="">Todos los tipos</option>
+                    {% for value, name in customer_types %}
+                    <option value="{{ value }}" {% if selected_type == value %}selected{% endif %}>{{ name }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn-corporate-primary text-white px-6 py-4 rounded-xl font-semibold transition-colors">
+                    <i class="fas fa-filter mr-2"></i>Filtrar
+                </button>
+            </div>
+        </form>
+
+        <!-- Tabla de Clientes -->
+        <div class="table-container rounded-xl border border-slate-200 overflow-hidden">
+            <table class="w-full">
+                <thead class="bg-gradient-to-r from-[#092e67] to-[#21239f] text-white">
+                    <tr>
+                        <th class="px-6 py-5 text-left text-sm font-semibold uppercase tracking-wider">Cliente</th>
+                        <th class="px-6 py-5 text-left text-sm font-semibold uppercase tracking-wider">NIT</th>
+                        <th class="px-6 py-5 text-left text-sm font-semibold uppercase tracking-wider">Dirección</th>
+                        <th class="px-6 py-5 text-left text-sm font-semibold uppercase tracking-wider">Ciudad</th>
+                        <th class="px-6 py-5 text-left text-sm font-semibold uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200 bg-white">
+                    {% for customer in customers %}
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-5">
+                            <div class="flex items-center">
+                                <div class="bg-blue-100 text-[#092e67] w-12 h-12 rounded-xl flex items-center justify-center mr-4">
+                                    <i class="fas fa-hospital text-lg"></i>
+                                </div>
+                                <div>
+                                    <div class="text-lg font-semibold text-slate-900">{{ customer.name }}</div>
+                                    <div class="text-sm text-slate-500">{{ customer.get_customer_type_display }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <span class="font-mono text-sm font-semibold text-[#092e67]">{{ customer.nit }}</span>
+                        </td>
+                        <td class="px-6 py-5">
+                            <span class="text-sm text-slate-700">{{ customer.address }}</span>
+                        </td>
+                        <td class="px-6 py-5">
+                            <span class="text-sm text-slate-700">{{ customer.city }}</span>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="flex space-x-2">
+                                <a href="{% url 'core:customer_edit' customer.pk %}" class="text-yellow-600 hover:text-yellow-800 p-3 rounded-lg hover:bg-yellow-50 transition-colors" title="Editar">
+                                    <i class="fas fa-edit text-lg"></i>
+                                </a>
+                                <a href="{% url 'core:customer_delete' customer.pk %}" class="text-[#f16664] hover:text-red-700 p-3 rounded-lg hover:bg-red-50 transition-colors" title="Eliminar">
+                                    <i class="fas fa-trash text-lg"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center p-8 text-slate-500">
+                            No se encontraron clientes que coincidan con su búsqueda.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginación -->
+        <div class="flex justify-between items-center mt-8">
+            <div class="text-sm text-slate-600">
+                Mostrando {{ customers|length }} de {{ customers.count }} clientes
+            </div>
+            <!-- Paginación real a implementar -->
+        </div>
+    </div>
+</div>
+{% endblock %}
