@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Integraciones - TGC Logística{% endblock %}
+{% block page_title %}Integraciones{% endblock %}
+
+{% block content %}
+<div class="row g-3">
+    <div class="col-12">
+        <h5 class="mb-3"><i class="bi bi-plug me-2"></i>Integraciones con Transportadoras</h5>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header"><strong>SimpliRoute</strong></div>
+            <div class="card-body">
+                <p class="small text-muted">Integración con SimpliRoute para creación de rutas y seguimiento.</p>
+                <div class="mb-2">
+                    <span class="badge bg-{% if config.SIMPLIROUTE_TOKEN %}success{% else %}warning{% endif %}">
+                        {% if config.SIMPLIROUTE_TOKEN %}API Configurada{% else %}Modo Archivo Plano{% endif %}
+                    </span>
+                </div>
+                <a href="{{ url_for('exportaciones.plantilla_cargue') }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-download me-1"></i>Exportar Plano
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header"><strong>Alas de Colombia / SISCORE</strong></div>
+            <div class="card-body">
+                <p class="small text-muted">Integración con Alas/SISCORE para generación y seguimiento de guías.</p>
+                <div class="mb-2">
+                    <span class="badge bg-{% if config.ALAS_API_KEY %}success{% else %}warning{% endif %}">
+                        {% if config.ALAS_API_KEY %}API Configurada{% else %}Modo Archivo Plano{% endif %}
+                    </span>
+                </div>
+                <a href="{{ url_for('exportaciones.plantilla_cargue') }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-download me-1"></i>Exportar Plano Alas
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header"><strong>Pibox</strong></div>
+            <div class="card-body">
+                <p class="small text-muted">Integración con Pibox para servicios de última milla.</p>
+                <div class="mb-2">
+                    <span class="badge bg-{% if config.PIBOX_API_KEY %}success{% else %}warning{% endif %}">
+                        {% if config.PIBOX_API_KEY %}API Configurada{% else %}Modo Archivo Plano{% endif %}
+                    </span>
+                </div>
+                <a href="{{ url_for('exportaciones.plantilla_cargue') }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-download me-1"></i>Exportar Plano Pibox
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            Para configurar las APIs, edite el archivo <strong>.env</strong> y reinicie el servidor.
+            Si las APIs no están configuradas, use la exportación por archivo plano Excel.
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+{% block title %}Pedido {{ pedido.numero_pedido }} - TGC Logística{% endblock %}
+{% block page_title %}Detalle Pedido {{ pedido.numero_pedido }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <div>
+        <h5 class="mb-0">Pedido <strong>{{ pedido.numero_pedido }}</strong></h5>
+        <small class="text-muted">{{ pedido.cliente.nombre if pedido.cliente else '' }} • {{ pedido.tipo_operacion }}</small>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        <a href="{{ url_for('pedidos.preparar_despacho', id_pedido=pedido.id_pedido) }}" class="btn btn-success btn-sm">
+            <i class="bi bi-truck me-1"></i>Preparar Despacho
+        </a>
+        <a href="{{ url_for('pedidos.cargar_base', id_pedido=pedido.id_pedido) }}" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-upload me-1"></i>Cargar Base
+        </a>
+        <a href="{{ url_for('despachos.nuevo', id_pedido=pedido.id_pedido) }}" class="btn btn-outline-info btn-sm">
+            <i class="bi bi-send me-1"></i>Crear Despacho
+        </a>
+        <a href="{{ url_for('remisiones.generar_pedido', id_pedido=pedido.id_pedido) }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-file-pdf me-1"></i>Remisión PDF
+        </a>
+        <a href="{{ url_for('exportaciones.simpliroute', id_pedido=pedido.id_pedido) }}" class="btn btn-outline-dark btn-sm">
+            <i class="bi bi-download me-1"></i>Plano SimpliRoute
+        </a>
+        <a href="{{ url_for('exportaciones.alas', id_pedido=pedido.id_pedido) }}" class="btn btn-outline-dark btn-sm">
+            <i class="bi bi-download me-1"></i>Plano Alas
+        </a>
+        <a href="{{ url_for('pedidos.editar', id_pedido=pedido.id_pedido) }}" class="btn btn-warning btn-sm">
+            <i class="bi bi-pencil me-1"></i>Editar
+        </a>
+        <a href="{{ url_for('pedidos.index') }}" class="btn btn-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Volver
+        </a>
+    </div>
+</div>
+
+<div class="row g-3">
+    <!-- Pedido Info -->
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header">Información del Pedido</div>
+            <div class="card-body">
+                <dl class="row mb-0 small">
+                    <dt class="col-5">Pedido</dt><dd class="col-7"><strong>{{ pedido.numero_pedido }}</strong></dd>
+                    <dt class="col-5">Cliente</dt><dd class="col-7">{{ pedido.cliente.nombre if pedido.cliente else '-' }}</dd>
+                    <dt class="col-5">Tipo Op.</dt><dd class="col-7"><span class="badge bg-secondary">{{ pedido.tipo_operacion }}</span></dd>
+                    <dt class="col-5">Producto</dt><dd class="col-7">{{ pedido.producto_principal or '-' }}</dd>
+                    <dt class="col-5">Cantidad</dt><dd class="col-7">{{ pedido.cantidad_total }}</dd>
+                    <dt class="col-5">F. Entrega</dt><dd class="col-7">{{ pedido.fecha_entrega_general.strftime('%d/%m/%Y') if pedido.fecha_entrega_general else '-' }}</dd>
+                    <dt class="col-5">Vendedora</dt><dd class="col-7">{{ pedido.vendedora or '-' }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <!-- States -->
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header">Estados</div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Producción:</strong>
+                    <span class="badge bg-{% if pedido.estado_produccion == 'LISTO PARA DESPACHO' %}success{% elif pedido.estado_produccion == 'EN PRODUCCIÓN' %}warning{% elif pedido.estado_produccion == 'PRODUCIDO' %}info{% else %}secondary{% endif %} ms-2">
+                        {{ pedido.estado_produccion }}
+                    </span>
+                    <form method="POST" action="{{ url_for('pedidos.cambiar_estado_produccion', id_pedido=pedido.id_pedido) }}" class="mt-2 d-flex gap-1">
+                        <select name="estado_produccion" class="form-select form-select-sm">
+                            {% for e in estados_produccion %}
+                            <option value="{{ e }}" {% if pedido.estado_produccion == e %}selected{% endif %}>{{ e }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-primary">OK</button>
+                    </form>
+                </div>
+                <div>
+                    <strong>Despacho:</strong>
+                    <span class="badge bg-{% if pedido.estado_despacho in ('COMPLETO','ENTREGADO') %}success{% elif pedido.estado_despacho in ('EN RUTA','PARCIAL') %}warning{% elif pedido.estado_despacho in ('NOVEDAD','NO ENTREGADO') %}danger{% else %}secondary{% endif %} ms-2">
+                        {{ pedido.estado_despacho }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Items -->
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header">Productos</div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                    <thead><tr><th>Producto</th><th>Cant.</th></tr></thead>
+                    <tbody>
+                        {% for item in pedido.items %}
+                        <tr><td>{{ item.producto }}</td><td>{{ item.cantidad }}</td></tr>
+                        {% else %}
+                        <tr><td colspan="2" class="text-muted text-center">Sin productos</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Entregas -->
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-box-seam me-2"></i>Entregas ({{ entregas|length }})</span>
+                <a href="{{ url_for('entregas.nueva') }}?id_pedido={{ pedido.id_pedido }}" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-plus-lg me-1"></i>Crear Entrega Manual
+                </a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0">
+                        <thead class="table-light">
+                            <tr><th>#</th><th>Destinatario</th><th>Dirección</th><th>Ciudad</th><th>Teléfono</th>
+                                <th>F. Entrega</th><th>Estado</th><th>Transportadora</th><th>Acciones</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for e in entregas %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ e.destinatario or '-' }}</td>
+                                <td>{{ e.direccion or '-' }}</td>
+                                <td>{{ e.ciudad or '-' }}</td>
+                                <td>{{ e.telefono or '-' }}</td>
+                                <td>{{ e.fecha_entrega.strftime('%d/%m/%Y') if e.fecha_entrega else '-' }}</td>
+                                <td><span class="badge bg-{% if e.estado_entrega == 'ENTREGADO' %}success{% elif e.estado_entrega in ('EN RUTA','PROGRAMADO') %}warning{% elif e.estado_entrega in ('NOVEDAD','NO ENTREGADO') %}danger{% else %}secondary{% endif %}">{{ e.estado_entrega }}</span></td>
+                                <td>{{ e.transportadora or '-' }}</td>
+                                <td>
+                                    <a href="{{ url_for('entregas.detalle', id_entrega=e.id_entrega) }}" class="btn btn-xs btn-outline-primary btn-sm py-0 px-1"><i class="bi bi-eye"></i></a>
+                                    <a href="{{ url_for('entregas.editar', id_entrega=e.id_entrega) }}" class="btn btn-xs btn-outline-warning btn-sm py-0 px-1"><i class="bi bi-pencil"></i></a>
+                                    <a href="{{ url_for('remisiones.generar_entrega', id_entrega=e.id_entrega) }}" class="btn btn-xs btn-outline-secondary btn-sm py-0 px-1" title="Generar Remisión"><i class="bi bi-file-pdf"></i></a>
+                                    <a href="{{ url_for('notificaciones.whatsapp_entrega', id_entrega=e.id_entrega) }}" class="btn btn-xs btn-outline-success btn-sm py-0 px-1" title="WhatsApp" target="_blank"><i class="bi bi-whatsapp"></i></a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="9" class="text-center text-muted py-3">No hay entregas. Use "Preparar Despacho" para crearlas.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Despachos -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-send me-2"></i>Despachos ({{ pedido.despachos|length }})</div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                    <thead class="table-light"><tr><th>N° Despacho</th><th>Tipo</th><th>Fecha</th><th>Cant.</th><th>Estado</th><th></th></tr></thead>
+                    <tbody>
+                        {% for d in pedido.despachos %}
+                        <tr>
+                            <td>{{ d.numero_despacho }}</td>
+                            <td>{{ d.tipo_despacho }}</td>
+                            <td>{{ d.fecha_despacho.strftime('%d/%m/%Y') if d.fecha_despacho else '-' }}</td>
+                            <td>{{ d.cantidad_despachada }}</td>
+                            <td><span class="badge bg-secondary">{{ d.estado_despacho }}</span></td>
+                            <td>
+                                <a href="{{ url_for('despachos.detalle', id_despacho=d.id_despacho) }}" class="btn btn-sm btn-outline-primary py-0 px-1"><i class="bi bi-eye"></i></a>
+                                <a href="{{ url_for('remisiones.generar_despacho', id_despacho=d.id_despacho) }}" class="btn btn-sm btn-outline-secondary py-0 px-1" title="Remisión"><i class="bi bi-file-pdf"></i></a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="6" class="text-center text-muted">Sin despachos</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tracking -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-geo-alt me-2"></i>Historial / Tracking</div>
+            <div class="card-body p-0" style="max-height:300px;overflow-y:auto">
+                {% for ev in eventos %}
+                <div class="border-bottom px-3 py-2 small">
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-bold">{{ ev.estado_nuevo or '-' }}</span>
+                        <span class="text-muted">{{ ev.fecha_evento.strftime('%d/%m/%Y %H:%M') if ev.fecha_evento else '' }}</span>
+                    </div>
+                    <div class="text-muted">{{ ev.descripcion or '' }}</div>
+                    <small class="text-muted">{{ ev.origen }} • {{ ev.usuario }}</small>
+                </div>
+                {% else %}
+                <p class="text-muted text-center py-3 mb-0">Sin eventos</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

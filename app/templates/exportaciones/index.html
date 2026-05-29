@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Exportaciones - TGC Logística{% endblock %}
+{% block page_title %}Exportaciones{% endblock %}
+
+{% block content %}
+<div class="row g-3">
+    <div class="col-12">
+        <h5 class="mb-3"><i class="bi bi-download me-2"></i>Exportaciones y Archivos Planos</h5>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header"><i class="bi bi-file-excel me-2"></i>Plantilla de Cargue</div>
+            <div class="card-body">
+                <p class="small text-muted">Descargue la plantilla Excel para cargar despachos masivos al sistema.</p>
+                <a href="{{ url_for('exportaciones.plantilla_cargue') }}" class="btn btn-success w-100">
+                    <i class="bi bi-download me-1"></i>Descargar Plantilla
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">Exportar por Pedido</div>
+            <div class="card-body">
+                <p class="small text-muted">Para exportar archivos planos por pedido, acceda al detalle de cada pedido y use los botones de exportación.</p>
+                <a href="{{ url_for('pedidos.index') }}" class="btn btn-primary">
+                    <i class="bi bi-clipboard-check me-1"></i>Ir a Pedidos
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

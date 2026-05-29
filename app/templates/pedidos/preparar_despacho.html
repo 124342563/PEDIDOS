@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Preparar Despacho - {{ pedido.numero_pedido }}{% endblock %}
+{% block page_title %}Preparar Despacho - {{ pedido.numero_pedido }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-truck me-2"></i>Preparar Despacho — Pedido {{ pedido.numero_pedido }}
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Cliente:</strong> {{ pedido.cliente.nombre if pedido.cliente else '-' }}<br>
+                    <strong>Tipo Operación:</strong> {{ pedido.tipo_operacion }}<br>
+                    <strong>Producto:</strong> {{ pedido.producto_principal or '-' }}<br>
+                    <strong>Cantidad:</strong> {{ pedido.cantidad_total }}<br>
+                    <strong>Entregas existentes:</strong> {{ resultado.entregas_existentes }}
+                </div>
+
+                <div class="alert alert-{% if resultado.accion in ('ENTREGA_CREADA','CREAR_AUTOMATICO') %}success{% elif resultado.accion in ('REQUIERE_BASE','REQUIERE_DATOS','CREAR_UN_SOLO_PUNTO') %}warning{% elif resultado.accion == 'RECOGIDA_PROGRAMADA' %}info{% else %}secondary{% endif %} d-flex align-items-center gap-2">
+                    <i class="bi bi-{% if resultado.accion == 'ENTREGA_CREADA' %}check-circle{% elif resultado.accion == 'REQUIERE_BASE' %}upload{% elif resultado.accion == 'REQUIERE_DATOS' %}pencil{% elif resultado.accion == 'CREAR_AUTOMATICO' %}lightning{% else %}info-circle{% endif %} fs-5"></i>
+                    <div>
+                        <strong>{{ resultado.accion }}</strong><br>
+                        {{ resultado.mensaje }}
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 mt-3">
+                    {% if resultado.accion == 'CREAR_AUTOMATICO' %}
+                    <form method="POST" action="{{ url_for('pedidos.crear_entrega_automatica', id_pedido=pedido.id_pedido) }}">
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-lightning me-1"></i>Crear Entrega Automáticamente
+                        </button>
+                    </form>
+                    {% endif %}
+
+                    {% if resultado.accion in ('REQUIERE_BASE',) %}
+                    <a href="{{ url_for('pedidos.cargar_base', id_pedido=pedido.id_pedido) }}" class="btn btn-primary">
+                        <i class="bi bi-upload me-1"></i>Cargar Base Excel
+                    </a>
+                    {% endif %}
+
+                    <a href="{{ url_for('entregas.nueva') }}?id_pedido={{ pedido.id_pedido }}" class="btn btn-outline-primary">
+                        <i class="bi bi-plus-lg me-1"></i>Crear Entrega Manual
+                    </a>
+
+                    {% if resultado.entregas_existentes > 0 %}
+                    <a href="{{ url_for('despachos.nuevo', id_pedido=pedido.id_pedido) }}" class="btn btn-info text-white">
+                        <i class="bi bi-send me-1"></i>Crear Despacho
+                    </a>
+                    {% endif %}
+
+                    <a href="{{ url_for('pedidos.detalle', id_pedido=pedido.id_pedido) }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left me-1"></i>Volver al Pedido
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

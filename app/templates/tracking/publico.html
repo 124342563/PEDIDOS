@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Tracking {{ entrega.destinatario }} - TGC Logística{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width:600px">
+    <div class="text-center mb-4">
+        <h4><i class="bi bi-geo-alt-fill text-primary"></i> Seguimiento de Pedido</h4>
+        <p class="text-muted">{{ pedido.numero_pedido if pedido else '' }}</p>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <h6 class="fw-bold">{{ entrega.destinatario or 'Destinatario' }}</h6>
+            <p class="mb-1"><i class="bi bi-geo-alt me-2"></i>{{ entrega.direccion or '-' }}, {{ entrega.ciudad or '' }}</p>
+            <p class="mb-1"><i class="bi bi-box me-2"></i>{{ entrega.producto or '-' }}</p>
+            <p class="mb-0">
+                <span class="badge bg-{% if entrega.estado_entrega == 'ENTREGADO' %}success{% elif entrega.estado_entrega in ('EN RUTA','PROGRAMADO') %}warning{% elif entrega.estado_entrega in ('NOVEDAD','NO ENTREGADO') %}danger{% else %}secondary{% endif %} fs-6">
+                    {{ entrega.estado_entrega }}
+                </span>
+            </p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">Historial</div>
+        <div class="card-body p-0">
+            {% for ev in eventos %}
+            <div class="d-flex gap-3 p-3 border-bottom">
+                <div class="text-center" style="min-width:60px">
+                    <small class="text-muted">{{ ev.fecha_evento.strftime('%d/%m') if ev.fecha_evento else '' }}</small><br>
+                    <small class="text-muted">{{ ev.fecha_evento.strftime('%H:%M') if ev.fecha_evento else '' }}</small>
+                </div>
+                <div>
+                    <div class="fw-bold small">{{ ev.estado_nuevo or '-' }}</div>
+                    <div class="small text-muted">{{ ev.descripcion or '' }}</div>
+                </div>
+            </div>
+            {% else %}
+            <p class="text-muted text-center py-3 mb-0">Sin historial disponible</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

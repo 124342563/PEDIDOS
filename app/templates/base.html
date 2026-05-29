@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}TGC Logística{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(180deg, #1F4E79 0%, #2E75B6 100%);
+            color: #fff;
+        }
+        .sidebar .nav-link { color: rgba(255,255,255,0.85); padding: 0.5rem 1rem; border-radius: 6px; margin: 2px 8px; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { background: rgba(255,255,255,0.15); color: #fff; }
+        .sidebar .nav-link i { width: 20px; }
+        .sidebar-brand { padding: 1.2rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.2); }
+        .sidebar-brand h5 { font-weight: 700; letter-spacing: 1px; }
+        .main-content { min-height: 100vh; }
+        .card { border: none; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+        .badge-estado { font-size: 0.8rem; }
+        .table-sm td, .table-sm th { vertical-align: middle; }
+        .stat-card { border-left: 4px solid; }
+        .stat-card .stat-number { font-size: 2rem; font-weight: 700; }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+<div class="container-fluid p-0">
+    <div class="row g-0">
+        <!-- Sidebar -->
+        <nav class="col-md-2 col-lg-2 sidebar d-md-block collapse" id="sidebarMenu">
+            <div class="sidebar-brand">
+                <h5 class="mb-0"><i class="bi bi-truck me-2"></i>TGC Logística</h5>
+                <small class="text-white-50">Sistema de Gestión</small>
+            </div>
+            <ul class="nav flex-column mt-3">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'dashboard.index' %}active{% endif %}"
+                       href="{{ url_for('dashboard.index') }}">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item mt-2">
+                    <small class="text-white-50 px-3 text-uppercase fw-bold" style="font-size:0.7rem">Maestros</small>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'clientes' in request.endpoint %}active{% endif %}"
+                       href="{{ url_for('clientes.index') }}">
+                        <i class="bi bi-building"></i> Clientes
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'colaboradores' in request.endpoint %}active{% endif %}"
+                       href="{{ url_for('colaboradores.index') }}">
+                        <i class="bi bi-people"></i> Colaboradores
+                    </a>
+                </li>
+                <li class="nav-item mt-2">
+                    <small class="text-white-50 px-3 text-uppercase fw-bold" style="font-size:0.7rem">Operaciones</small>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'pedidos' in request.endpoint %}active{% endif %}"
+                       href="{{ url_for('pedidos.index') }}">
+                        <i class="bi bi-clipboard-check"></i> Pedidos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'entregas' in request.endpoint %}active{% endif %}"
+                       href="{{ url_for('entregas.index') }}">
+                        <i class="bi bi-box-seam"></i> Entregas
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'despachos' in request.endpoint %}active{% endif %}"
+                       href="{{ url_for('despachos.index') }}">
+                        <i class="bi bi-send"></i> Despachos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'remisiones' in request.endpoint %}active{% endif %}"
+                       href="{{ url_for('remisiones.index') }}">
+                        <i class="bi bi-file-pdf"></i> Remisiones
+                    </a>
+                </li>
+                <li class="nav-item mt-2">
+                    <small class="text-white-50 px-3 text-uppercase fw-bold" style="font-size:0.7rem">Herramientas</small>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'exportaciones' in request.endpoint %}active{% endif %}"
+                       href="{{ url_for('exportaciones.index') }}">
+                        <i class="bi bi-download"></i> Exportaciones
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'notificaciones' in request.endpoint %}active{% endif %}"
+                       href="{{ url_for('notificaciones.index') }}">
+                        <i class="bi bi-bell"></i> Notificaciones
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'integraciones' in request.endpoint %}active{% endif %}"
+                       href="{{ url_for('integraciones.index') }}">
+                        <i class="bi bi-plug"></i> Integraciones
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="col-md-10 col-lg-10 main-content px-4 py-3">
+            <!-- Top bar -->
+            <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                <button class="btn btn-sm btn-outline-secondary d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
+                    <i class="bi bi-list"></i>
+                </button>
+                <h6 class="mb-0 text-muted">{% block page_title %}{% endblock %}</h6>
+                <small class="text-muted"><i class="bi bi-calendar3 me-1"></i>{{ now().strftime('%d/%m/%Y') if now else '' }}</small>
+            </div>
+
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            <i class="bi bi-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

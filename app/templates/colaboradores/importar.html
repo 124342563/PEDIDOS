@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Importar Colaboradores - TGC Logística{% endblock %}
+{% block page_title %}Importar Colaboradores desde Excel{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-upload me-2"></i>Importar Colaboradores desde Excel</div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <strong>Columnas esperadas:</strong> NombreDestinatarioCompleto, Documento, Telefono, Correo,
+                    DireccionEntrega, Ciudad, Municipio, FechaNacimiento, ObservacionAdicional
+                </div>
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Cliente <span class="text-danger">*</span></label>
+                        <select name="id_cliente" class="form-select" required>
+                            <option value="">Seleccione...</option>
+                            {% for c in clientes %}
+                            <option value="{{ c.id_cliente }}">{{ c.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Archivo Excel <span class="text-danger">*</span></label>
+                        <input type="file" name="archivo" class="form-control" accept=".xlsx,.xls" required>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success"><i class="bi bi-upload me-1"></i>Importar</button>
+                        <a href="{{ url_for('colaboradores.index') }}" class="btn btn-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
