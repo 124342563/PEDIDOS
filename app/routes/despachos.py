@@ -68,6 +68,7 @@ def nuevo(id_pedido):
                 )
                 db.session.add(de)
                 cantidad_total += entrega.cantidad or 0
+                estado_anterior_entrega = entrega.estado_entrega
                 entrega.estado_entrega = "PROGRAMADO"
                 entrega.transportadora = transportadora
                 entrega.updated_at = datetime.utcnow()
@@ -75,7 +76,7 @@ def nuevo(id_pedido):
                     id_pedido=id_pedido,
                     id_entrega=entrega.id_entrega,
                     id_despacho=despacho.id_despacho,
-                    estado_anterior="PENDIENTE",
+                    estado_anterior=estado_anterior_entrega,
                     estado_nuevo="PROGRAMADO",
                     descripcion=f"Incluida en despacho {numero_despacho}",
                     usuario="usuario",
