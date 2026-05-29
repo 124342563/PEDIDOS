@@ -39,7 +39,7 @@ def nuevo(id_pedido):
         entrega_ids = request.form.getlist("entregas[]")
         if not entrega_ids:
             flash("Debe seleccionar al menos una entrega.", "danger")
-            return redirect(request.url)
+            return redirect(url_for("despachos.crear", id_pedido=id_pedido))
 
         # Generate despacho number
         count = Despacho.query.filter_by(id_pedido=id_pedido).count()
@@ -85,7 +85,8 @@ def nuevo(id_pedido):
 
         despacho.cantidad_despachada = cantidad_total
 
-        # Update pedido state
+        # Capture state BEFORE updating, then update
+        estado_anterior = pedido.estado_despacho
         nuevo_estado = calcular_estado_despacho(pedido)
         pedido.estado_despacho = nuevo_estado
         pedido.updated_at = datetime.utcnow()
@@ -93,7 +94,7 @@ def nuevo(id_pedido):
         evento_p = TrackingEvento(
             id_pedido=id_pedido,
             id_despacho=despacho.id_despacho,
-            estado_anterior=pedido.estado_despacho,
+            estado_anterior=estado_anterior,
             estado_nuevo=nuevo_estado,
             descripcion=f"Despacho {tipo} creado: {numero_despacho}",
             usuario="usuario",

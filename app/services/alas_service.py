@@ -13,7 +13,7 @@ ESTADO_MAP = {
 
 
 def crear_guia_alas(entrega, api_url, api_key):
-    headers = {"Authorization": f"******", "Content-Type": "application/json"}
+    headers = {"Authorization": "Bearer " + api_key, "Content-Type": "application/json"}
     payload = {
         "pedido": str(entrega.id_pedido),
         "destinatario": entrega.destinatario or "",
@@ -37,7 +37,7 @@ def crear_guia_alas(entrega, api_url, api_key):
 
 
 def consultar_estado_guia(guia, api_url, api_key):
-    headers = {"Authorization": f"******"}
+    headers = {"Authorization": "Bearer " + api_key}
     response = requests.get(f"{api_url}/guias/{guia}/estado", headers=headers, timeout=15)
     response.raise_for_status()
     data = response.json()

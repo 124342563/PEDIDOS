@@ -256,11 +256,11 @@ def cargar_base(id_pedido):
         archivo = request.files.get("archivo")
         if not archivo:
             flash("Debe seleccionar un archivo.", "danger")
-            return redirect(request.url)
+            return redirect(url_for("pedidos.cargar_base", id_pedido=id_pedido))
         filename = secure_filename(archivo.filename)
         if not filename.endswith((".xlsx", ".xls")):
             flash("Solo se permiten archivos Excel (.xlsx, .xls).", "danger")
-            return redirect(request.url)
+            return redirect(url_for("pedidos.cargar_base", id_pedido=id_pedido))
         try:
             resultado = cargar_entregas_desde_base(archivo.stream, pedido)
             flash(f"Base cargada: {resultado['creadas']} entregas creadas, {resultado['errores']} errores.", "success")

@@ -1,5 +1,5 @@
 import secrets
-import hashlib
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 def generar_token():
@@ -7,7 +7,11 @@ def generar_token():
 
 
 def hash_password(password):
-    return hashlib.sha256(password.encode()).hexdigest()
+    return generate_password_hash(password)
+
+
+def verify_password(password, hashed):
+    return check_password_hash(hashed, password)
 
 
 def sanitize_filename(name):

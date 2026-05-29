@@ -3,7 +3,7 @@ import requests
 
 def crear_servicio_pibox(entrega, api_key):
     url = "https://api.pibox.app/v1/services"
-    headers = {"Authorization": f"******", "Content-Type": "application/json"}
+    headers = {"Authorization": "Bearer " + api_key, "Content-Type": "application/json"}
     payload = {
         "recipient_name": entrega.destinatario or "",
         "recipient_phone": entrega.telefono or "",
