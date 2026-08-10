@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - TGC Logística{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Stats Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card stat-card border-primary h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="text-muted small">Pedidos Hoy</div>
+                        <div class="stat-number text-primary">{{ stats.pedidos_hoy }}</div>
+                    </div>
+                    <i class="bi bi-clipboard-check fs-2 text-primary opacity-25"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card stat-card border-success h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="text-muted small">Entregas Hoy</div>
+                        <div class="stat-number text-success">{{ stats.entregas_hoy }}</div>
+                    </div>
+                    <i class="bi bi-box-seam fs-2 text-success opacity-25"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card stat-card border-warning h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="text-muted small">En Producción</div>
+                        <div class="stat-number text-warning">{{ stats.en_produccion }}</div>
+                    </div>
+                    <i class="bi bi-gear fs-2 text-warning opacity-25"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card stat-card border-info h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="text-muted small">Listos Despacho</div>
+                        <div class="stat-number text-info">{{ stats.listos_despacho }}</div>
+                    </div>
+                    <i class="bi bi-truck fs-2 text-info opacity-25"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card stat-card border-warning h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="text-muted small">En Ruta</div>
+                        <div class="stat-number text-warning">{{ stats.en_ruta }}</div>
+                    </div>
+                    <i class="bi bi-geo-alt fs-2 text-warning opacity-25"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card stat-card border-success h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="text-muted small">Entregados</div>
+                        <div class="stat-number text-success">{{ stats.entregados }}</div>
+                    </div>
+                    <i class="bi bi-check-circle fs-2 text-success opacity-25"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card stat-card border-danger h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="text-muted small">Novedades</div>
+                        <div class="stat-number text-danger">{{ stats.novedades }}</div>
+                    </div>
+                    <i class="bi bi-exclamation-triangle fs-2 text-danger opacity-25"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card stat-card border-secondary h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="text-muted small">Recogidas Pend.</div>
+                        <div class="stat-number text-secondary">{{ stats.recogidas_pendientes }}</div>
+                    </div>
+                    <i class="bi bi-shop fs-2 text-secondary opacity-25"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pedidos Table -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-list-ul me-2"></i>Pedidos Recientes</span>
+        <a href="{{ url_for('pedidos.nuevo') }}" class="btn btn-sm btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>Nuevo Pedido
+        </a>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-sm table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Pedido</th>
+                        <th>Cliente</th>
+                        <th>Tipo Op.</th>
+                        <th>Producto</th>
+                        <th>Cant.</th>
+                        <th>F. Entrega</th>
+                        <th>Producción</th>
+                        <th>Despacho</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in pedidos %}
+                    <tr>
+                        <td><a href="{{ url_for('pedidos.detalle', id_pedido=p.id_pedido) }}" class="fw-bold">{{ p.numero_pedido }}</a></td>
+                        <td>{{ p.cliente.nombre if p.cliente else '-' }}</td>
+                        <td><span class="badge bg-secondary">{{ p.tipo_operacion }}</span></td>
+                        <td>{{ p.producto_principal or '-' }}</td>
+                        <td>{{ p.cantidad_total }}</td>
+                        <td>{{ p.fecha_entrega_general.strftime('%d/%m/%Y') if p.fecha_entrega_general else '-' }}</td>
+                        <td>
+                            {% set ep = p.estado_produccion %}
+                            <span class="badge bg-{% if ep == 'LISTO PARA DESPACHO' %}success{% elif ep == 'EN PRODUCCIÓN' %}warning{% elif ep == 'PRODUCIDO' %}info{% else %}secondary{% endif %}">
+                                {{ ep }}
+                            </span>
+                        </td>
+                        <td>
+                            {% set ed = p.estado_despacho %}
+                            <span class="badge bg-{% if ed == 'COMPLETO' or ed == 'ENTREGADO' %}success{% elif ed == 'EN RUTA' or ed == 'PARCIAL' %}warning{% elif ed == 'NOVEDAD' %}danger{% else %}secondary{% endif %}">
+                                {{ ed }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('pedidos.detalle', id_pedido=p.id_pedido) }}" class="btn btn-xs btn-outline-primary btn-sm py-0 px-1" title="Ver"><i class="bi bi-eye"></i></a>
+                            <a href="{{ url_for('pedidos.preparar_despacho', id_pedido=p.id_pedido) }}" class="btn btn-xs btn-outline-success btn-sm py-0 px-1" title="Preparar Despacho"><i class="bi bi-truck"></i></a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="9" class="text-center text-muted py-4">No hay pedidos registrados.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

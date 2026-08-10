@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} Cliente - TGC Logística{% endblock %}
+{% block page_title %}{{ action }} Cliente{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-building me-2"></i>{{ action }} Cliente
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label fw-bold">Nombre <span class="text-danger">*</span></label>
+                            <input type="text" name="nombre" class="form-control" value="{{ cliente.nombre if cliente else '' }}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">NIT</label>
+                            <input type="text" name="nit" class="form-control" value="{{ cliente.nit if cliente else '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Contacto Principal</label>
+                            <input type="text" name="contacto_principal" class="form-control" value="{{ cliente.contacto_principal if cliente else '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Correo</label>
+                            <input type="email" name="correo" class="form-control" value="{{ cliente.correo if cliente else '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Teléfono</label>
+                            <input type="text" name="telefono" class="form-control" value="{{ cliente.telefono if cliente else '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Ciudad</label>
+                            <input type="text" name="ciudad" class="form-control" value="{{ cliente.ciudad if cliente else '' }}">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Dirección Principal</label>
+                            <input type="text" name="direccion_principal" class="form-control" value="{{ cliente.direccion_principal if cliente else '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check mt-2">
+                                <input class="form-check-input" type="checkbox" name="es_convenio" id="es_convenio"
+                                    {% if cliente and cliente.es_convenio %}checked{% endif %}>
+                                <label class="form-check-label" for="es_convenio">Es cliente convenio</label>
+                            </div>
+                        </div>
+                        {% if cliente %}
+                        <div class="col-md-6">
+                            <div class="form-check mt-2">
+                                <input class="form-check-input" type="checkbox" name="activo" id="activo"
+                                    {% if cliente.activo %}checked{% endif %}>
+                                <label class="form-check-label" for="activo">Activo</label>
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div class="col-12">
+                            <label class="form-label">Observaciones</label>
+                            <textarea name="observaciones" class="form-control" rows="3">{{ cliente.observaciones if cliente else '' }}</textarea>
+                        </div>
+                    </div>
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg me-1"></i>Guardar
+                        </button>
+                        <a href="{{ url_for('clientes.index') }}" class="btn btn-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

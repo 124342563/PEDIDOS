@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} Colaborador - TGC Logística{% endblock %}
+{% block page_title %}{{ action }} Colaborador{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-person me-2"></i>{{ action }} Colaborador</div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Cliente <span class="text-danger">*</span></label>
+                            <select name="id_cliente" class="form-select" required>
+                                <option value="">Seleccione...</option>
+                                {% for c in clientes %}
+                                <option value="{{ c.id_cliente }}" {% if colaborador and colaborador.id_cliente == c.id_cliente %}selected{% endif %}>{{ c.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Nombre <span class="text-danger">*</span></label>
+                            <input type="text" name="nombre" class="form-control" value="{{ colaborador.nombre if colaborador else '' }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Documento</label>
+                            <input type="text" name="documento" class="form-control" value="{{ colaborador.documento if colaborador else '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Teléfono</label>
+                            <input type="text" name="telefono" class="form-control" value="{{ colaborador.telefono if colaborador else '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Correo</label>
+                            <input type="email" name="correo" class="form-control" value="{{ colaborador.correo if colaborador else '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha Nacimiento</label>
+                            <input type="date" name="fecha_nacimiento" class="form-control"
+                                value="{{ colaborador.fecha_nacimiento.strftime('%Y-%m-%d') if colaborador and colaborador.fecha_nacimiento else '' }}">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Dirección</label>
+                            <input type="text" name="direccion" class="form-control" value="{{ colaborador.direccion if colaborador else '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Ciudad</label>
+                            <input type="text" name="ciudad" class="form-control" value="{{ colaborador.ciudad if colaborador else '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Municipio</label>
+                            <input type="text" name="municipio" class="form-control" value="{{ colaborador.municipio if colaborador else '' }}">
+                        </div>
+                        {% if colaborador %}
+                        <div class="col-12">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="activo" {% if colaborador.activo %}checked{% endif %}>
+                                <label class="form-check-label">Activo</label>
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div class="col-12">
+                            <label class="form-label">Observación</label>
+                            <textarea name="observacion" class="form-control" rows="2">{{ colaborador.observacion if colaborador else '' }}</textarea>
+                        </div>
+                    </div>
+                    <div class="mt-3 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>Guardar</button>
+                        <a href="{{ url_for('colaboradores.index') }}" class="btn btn-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

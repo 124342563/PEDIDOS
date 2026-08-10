@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Tracking Pedido {{ pedido.numero_pedido }}{% endblock %}
+{% block page_title %}Trazabilidad Pedido {{ pedido.numero_pedido }}{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-2 mb-3">
+    <a href="{{ url_for('pedidos.detalle', id_pedido=pedido.id_pedido) }}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <h5 class="mb-0">Pedido {{ pedido.numero_pedido }} – {{ pedido.cliente.nombre if pedido.cliente else '' }}</h5>
+</div>
+
+<div class="card">
+    <div class="card-header">Historial de eventos</div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-sm table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Fecha</th><th>Estado anterior</th><th>Estado nuevo</th>
+                        <th>Descripción</th><th>Usuario</th><th>Origen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ev in eventos %}
+                    <tr>
+                        <td><small>{{ ev.fecha_evento.strftime('%d/%m/%Y %H:%M') if ev.fecha_evento else '-' }}</small></td>
+                        <td><small class="text-muted">{{ ev.estado_anterior or '-' }}</small></td>
+                        <td><strong>{{ ev.estado_nuevo or '-' }}</strong></td>
+                        <td><small>{{ ev.descripcion or '-' }}</small></td>
+                        <td><small>{{ ev.usuario or '-' }}</small></td>
+                        <td><span class="badge bg-secondary">{{ ev.origen or '-' }}</span></td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="6" class="text-center text-muted py-4">Sin eventos registrados.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

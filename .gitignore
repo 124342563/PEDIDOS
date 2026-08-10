@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Environment variables
+.env
+
+# Flask instance / database
+instance/
+
+# Application data folders (generated at runtime)
+uploads/
+exports/
+remisiones/
+logs/
+backups/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Migrations (keep only if generated in project)
+# migrations/
+
+# Pytest
+.pytest_cache/
+.coverage
+htmlcov/

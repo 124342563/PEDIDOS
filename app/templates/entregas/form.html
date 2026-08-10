@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} Entrega - TGC Logística{% endblock %}
+{% block page_title %}{{ action }} Entrega{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-9">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-box-seam me-2"></i>{{ action }} Entrega</div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Pedido <span class="text-danger">*</span></label>
+                            <select name="id_pedido" class="form-select" required>
+                                <option value="">Seleccione...</option>
+                                {% for p in pedidos %}
+                                <option value="{{ p.id_pedido }}"
+                                    {% if entrega and entrega.id_pedido == p.id_pedido %}selected
+                                    {% elif id_pedido and id_pedido == p.id_pedido %}selected{% endif %}>
+                                    {{ p.numero_pedido }} - {{ p.cliente.nombre if p.cliente else '' }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label fw-bold">Destinatario</label>
+                            <input type="text" name="destinatario" class="form-control" value="{{ entrega.destinatario if entrega else '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Empresa</label>
+                            <input type="text" name="empresa" class="form-control" value="{{ entrega.empresa if entrega else '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Teléfono</label>
+                            <input type="text" name="telefono" class="form-control" value="{{ entrega.telefono if entrega else '' }}">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Dirección</label>
+                            <input type="text" name="direccion" class="form-control" value="{{ entrega.direccion if entrega else '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Ciudad</label>
+                            <input type="text" name="ciudad" class="form-control" value="{{ entrega.ciudad if entrega else '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Municipio</label>
+                            <input type="text" name="municipio" class="form-control" value="{{ entrega.municipio if entrega else '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Producto</label>
+                            <input type="text" name="producto" class="form-control" value="{{ entrega.producto if entrega else '' }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Cantidad</label>
+                            <input type="number" name="cantidad" class="form-control" min="1" value="{{ entrega.cantidad if entrega else 1 }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Fecha Entrega</label>
+                            <input type="date" name="fecha_entrega" class="form-control"
+                                value="{{ entrega.fecha_entrega.strftime('%Y-%m-%d') if entrega and entrega.fecha_entrega else '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Transportadora</label>
+                            <select name="transportadora" class="form-select">
+                                <option value="">Seleccione...</option>
+                                {% for t in transportadoras %}
+                                <option value="{{ t }}" {% if entrega and entrega.transportadora == t %}selected{% endif %}>{{ t }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Observación</label>
+                            <input type="text" name="observacion" class="form-control" value="{{ entrega.observacion if entrega else '' }}">
+                        </div>
+                    </div>
+                    <div class="mt-3 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>Guardar</button>
+                        <a href="{{ url_for('entregas.index') }}" class="btn btn-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

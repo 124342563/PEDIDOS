@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Entrega {{ entrega.id_entrega }} - TGC Logística{% endblock %}
+{% block page_title %}Detalle Entrega #{{ entrega.id_entrega }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <div>
+        <h5 class="mb-0">{{ entrega.destinatario or 'Sin destinatario' }}</h5>
+        <small class="text-muted">Pedido: {{ entrega.pedido.numero_pedido if entrega.pedido else entrega.id_pedido }}</small>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        <a href="{{ url_for('entregas.editar', id_entrega=entrega.id_entrega) }}" class="btn btn-warning btn-sm"><i class="bi bi-pencil me-1"></i>Editar</a>
+        <a href="{{ url_for('remisiones.generar_entrega', id_entrega=entrega.id_entrega) }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-pdf me-1"></i>Remisión PDF</a>
+        <a href="{{ url_for('notificaciones.whatsapp_entrega', id_entrega=entrega.id_entrega) }}" class="btn btn-outline-success btn-sm" target="_blank"><i class="bi bi-whatsapp me-1"></i>WhatsApp</a>
+        {% if entrega.token_tracking %}
+        <a href="{{ url_for('tracking.publico', token=entrega.token_tracking) }}" class="btn btn-outline-info btn-sm" target="_blank"><i class="bi bi-geo-alt me-1"></i>Ver Tracking</a>
+        {% endif %}
+        <a href="{{ url_for('entregas.index') }}" class="btn btn-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i>Volver</a>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">Datos de Entrega</div>
+            <div class="card-body">
+                <dl class="row mb-0 small">
+                    <dt class="col-5">Destinatario</dt><dd class="col-7">{{ entrega.destinatario or '-' }}</dd>
+                    <dt class="col-5">Empresa</dt><dd class="col-7">{{ entrega.empresa or '-' }}</dd>
+                    <dt class="col-5">Dirección</dt><dd class="col-7">{{ entrega.direccion or '-' }}</dd>
+                    <dt class="col-5">Ciudad</dt><dd class="col-7">{{ entrega.ciudad or '-' }}</dd>
+                    <dt class="col-5">Municipio</dt><dd class="col-7">{{ entrega.municipio or '-' }}</dd>
+                    <dt class="col-5">Teléfono</dt><dd class="col-7">{{ entrega.telefono or '-' }}</dd>
+                    <dt class="col-5">Producto</dt><dd class="col-7">{{ entrega.producto or '-' }}</dd>
+                    <dt class="col-5">Cantidad</dt><dd class="col-7">{{ entrega.cantidad }}</dd>
+                    <dt class="col-5">F. Entrega</dt><dd class="col-7">{{ entrega.fecha_entrega.strftime('%d/%m/%Y') if entrega.fecha_entrega else '-' }}</dd>
+                    <dt class="col-5">Transportadora</dt><dd class="col-7">{{ entrega.transportadora or '-' }}</dd>
+                    <dt class="col-5">Guía Alas</dt><dd class="col-7">{{ entrega.guia_alas or '-' }}</dd>
+                    <dt class="col-5">Tracking Pibox</dt><dd class="col-7">{{ entrega.tracking_pibox or '-' }}</dd>
+                    {% if entrega.link_simpliroute %}
+                    <dt class="col-5">SimpliRoute</dt><dd class="col-7"><a href="{{ entrega.link_simpliroute }}" target="_blank">Ver ruta</a></dd>
+                    {% endif %}
+                    <dt class="col-5">Observación</dt><dd class="col-7">{{ entrega.observacion or '-' }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Estado: <span class="badge bg-{% if entrega.estado_entrega == 'ENTREGADO' %}success{% elif entrega.estado_entrega in ('EN RUTA','PROGRAMADO') %}warning{% elif entrega.estado_entrega in ('NOVEDAD','NO ENTREGADO') %}danger{% else %}secondary{% endif %}">{{ entrega.estado_entrega }}</span></span>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('entregas.cambiar_estado', id_entrega=entrega.id_entrega) }}" class="d-flex gap-2 mb-3">
+                    <select name="estado_entrega" class="form-select form-select-sm">
+                        {% for e in estados %}
+                        <option value="{{ e }}" {% if e == entrega.estado_entrega %}selected{% endif %}>{{ e }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-primary">Actualizar</button>
+                </form>
+                <hr>
+                <h6 class="small fw-bold">Historial</h6>
+                <div style="max-height:220px;overflow-y:auto">
+                    {% for ev in eventos %}
+                    <div class="border-bottom py-1 small">
+                        <span class="fw-bold">{{ ev.estado_nuevo or '-' }}</span>
+                        <span class="text-muted float-end">{{ ev.fecha_evento.strftime('%d/%m/%Y %H:%M') if ev.fecha_evento else '' }}</span>
+                        <div class="text-muted">{{ ev.descripcion or '' }}</div>
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center">Sin historial</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
