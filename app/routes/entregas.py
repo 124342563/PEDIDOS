@@ -3,6 +3,7 @@ from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from app.extensions import db
 from app.models import Entrega, Pedido, TrackingEvento
+from app.utils.status_mapper import calcular_estado_despacho
 
 bp = Blueprint("entregas", __name__)
 
@@ -66,6 +67,10 @@ def nueva():
             origen="MANUAL",
         )
         db.session.add(evento)
+        pedido = Pedido.query.get(entrega.id_pedido)
+        if pedido:
+            pedido.estado_despacho = calcular_estado_despacho(pedido)
+            pedido.updated_at = datetime.utcnow()
         db.session.commit()
         flash("Entrega creada exitosamente.", "success")
         return redirect(url_for("pedidos.detalle", id_pedido=entrega.id_pedido))
@@ -129,6 +134,10 @@ def cambiar_estado(id_entrega):
             origen="MANUAL",
         )
         db.session.add(evento)
+        pedido = Pedido.query.get(entrega.id_pedido)
+        if pedido:
+            pedido.estado_despacho = calcular_estado_despacho(pedido)
+            pedido.updated_at = datetime.utcnow()
         db.session.commit()
         flash(f"Estado actualizado a {nuevo_estado}.", "success")
     return redirect(url_for("entregas.detalle", id_entrega=id_entrega))

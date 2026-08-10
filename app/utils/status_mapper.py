@@ -5,16 +5,21 @@ def calcular_estado_despacho(pedido):
     entregas = Entrega.query.filter_by(id_pedido=pedido.id_pedido).all()
     if not entregas:
         return "PENDIENTE"
-    total = pedido.cantidad_total or len(entregas)
-    despachadas = sum(
-        e.cantidad for e in entregas
-        if e.estado_entrega in ("ENTREGADO", "EN RUTA", "PROGRAMADO")
-    )
-    if despachadas == 0:
-        return "PENDIENTE"
-    if despachadas < total:
+    total = entregas
+    estados = [e.estado_entrega for e in entregas]
+    if all(e == "ENTREGADO" for e in estados):
+        return "COMPLETO"
+    if any(e in ("NO ENTREGADO", "NOVEDAD") for e in estados):
+        if any(e == "ENTREGADO" for e in estados):
+            return "PARCIAL"
+        return "NOVEDAD"
+    if any(e == "EN RUTA" for e in estados):
+        return "EN RUTA"
+    if any(e == "PROGRAMADO" for e in estados):
+        return "PROGRAMADO"
+    if any(e == "ENTREGADO" for e in estados):
         return "PARCIAL"
-    return "COMPLETO"
+    return "PENDIENTE"
 
 
 ESTADOS_PRODUCCION_MAP = {
